@@ -1,0 +1,65 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class UnitSelectionManagement : MonoBehaviour
+{
+    List<GameObject> SelectedUnits;
+    GameObject unitSelected;
+    GameObject highlight;
+    
+    void Start()
+    {
+        SelectedUnits = new List<GameObject>();
+    }
+
+    void Update()
+    {
+       if(Input.GetMouseButtonDown(0)){
+            
+            UnitSelecionSystem(unitSelected);
+        }
+        
+        //temp (for tests only)
+        if (Input.GetKeyDown(KeyCode.Space))
+        {   print(SelectedUnits.Count); }
+
+    }
+
+
+    void UnitSelecionSystem(GameObject unit){
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Physics.Raycast(ray, out RaycastHit hit);
+        
+        if(highlight != null)
+        {   
+            if(!Input.GetKey(KeyCode.LeftShift))
+            {   
+                ClearSelection();
+            }
+        }
+        
+        if(hit.transform.tag=="Selectable"){
+            unit = hit.collider.gameObject;
+            SelectedUnits.Add(unit);             
+            ActivateHighlightOnUnitsListed();
+        } 
+        unitSelected = unit;
+    }
+    
+    void ActivateHighlightOnUnitsListed(){
+
+        foreach(GameObject unitSelected in SelectedUnits){
+            
+            highlight = unitSelected.transform.Find("Highlight").gameObject;
+            highlight.SetActive(true);
+        }
+    }
+
+    void ClearSelection(){
+        highlight.SetActive(false);
+        SelectedUnits.Clear();
+    }
+
+}   
