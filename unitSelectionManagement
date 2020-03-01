@@ -58,7 +58,12 @@ public class UnitSelectionManagement : MonoBehaviour
     }
 
     void ClearSelection(){
-        highlight.SetActive(false);
+        
+        foreach(GameObject unitSelected in SelectedUnits){
+            
+            highlight = unitSelected.transform.Find("Highlight").gameObject;
+            highlight.SetActive(false);
+        }
         SelectedUnits.Clear();
     }
 
