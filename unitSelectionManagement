@@ -19,11 +19,6 @@ public class UnitSelectionManagement : MonoBehaviour
             
             UnitSelecionSystem(unitSelected);
         }
-        
-        //temp (for tests only)
-        if (Input.GetKeyDown(KeyCode.Space))
-        {   print(SelectedUnits.Count); }
-
     }
 
 
