@@ -5,92 +5,125 @@ using UnityEngine;
 public class UnitSelectionManagement : MonoBehaviour
 {
     List<GameObject> SelectedUnits;
-    List<GameObject> EnvironmentObjectSelected;
-    GameObject unitSelected;
-    GameObject highlight;
-    GameObject environmentObjectSelected;
+    List<GameObject> SelectedEnvironmentObject;
+    List<GameObject> SelectedStructures;
+    GameObject selectedUnit;
+    GameObject sHighlight;
     GameObject eHighlight;
-    
+    GameObject highlight;
+
     void Start()
     {
         SelectedUnits = new List<GameObject>();
-        EnvironmentObjectSelected = new List<GameObject>();
+        SelectedEnvironmentObject = new List<GameObject>();
+        SelectedStructures = new List<GameObject>();
     }
 
     void Update()
     {
-       if(Input.GetMouseButtonDown(0)){
-            
-            UnitSelecionSystem(unitSelected);
+        var mouseButton0isPresssed = Input.GetMouseButtonDown(0);
+
+        if (mouseButton0isPresssed)
+        {
+
+            UnitSelecionSystem(selectedUnit);
         }
-        
     }
 
 
-    void UnitSelecionSystem(GameObject unit){
+    void UnitSelecionSystem(GameObject @object)
+    {
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Physics.Raycast(ray, out RaycastHit hit);
 
         var shiftIsPressed = Input.GetKey(KeyCode.LeftShift);
         var objectClicked = hit.collider.gameObject;
-        var playerUnitIsSelected = hit.transform.tag=="Selectable";
-        var environmentObjectIsSelected = hit.transform.tag=="ESelectable";
-         
-        if(highlight || eHighlight != null){
-            if(!shiftIsPressed){
-                ClearAllSelections();
-            }
-        }
-        
-        if(playerUnitIsSelected){
-            if(!shiftIsPressed || EnvironmentObjectSelected.Count >= 1) 
-            {   
-                ClearAllSelections();
-            }
-            unit = objectClicked;
-            SelectedUnits.Add(unit);             
-            ActivateHighlightOnUnitsListed();
-        }
-        
-        if(environmentObjectIsSelected) {
-            ClearAllSelections();
-            unit = objectClicked;
-            EnvironmentObjectSelected.Add(unit);
-            ActivateHighlightOnUnitsListed();
-        }
-        unitSelected = unit;
-    }
-    
-    void ActivateHighlightOnUnitsListed(){
+        var objectIsSelected = hit.transform.tag == "Selectable";
+        var structureIsSelected = hit.transform.tag == "StructSelectable";
+        var environmentObjectIsSelected = hit.transform.tag == "ESelectable";
 
-        foreach(GameObject unitSelected in SelectedUnits){
-            
-            highlight = unitSelected.transform.Find("Highlight").gameObject;
+        if (highlight || eHighlight || sHighlight != null)
+        {
+            if (!shiftIsPressed)
+            {
+                ClearAllSelections();
+            }
+        }
+
+        if (objectIsSelected)  // Unit selected
+        {
+            if (!shiftIsPressed || SelectedEnvironmentObject.Count >= 1 || SelectedStructures.Count >= 1)
+            {
+                ClearAllSelections();
+            }
+            @object = objectClicked;
+            SelectedUnits.Add(@object);
+            ActivateHighlightOnUnitsListed();
+        }
+
+        if (structureIsSelected){  // Structure selected
+
+            ClearAllSelections();
+            @object = objectClicked;
+            SelectedStructures.Add(@object);
+            ActivateHighlightOnUnitsListed();
+
+        }
+        
+        if (environmentObjectIsSelected) // Enviroment object selected
+        {
+            ClearAllSelections();
+            @object = objectClicked;
+            SelectedEnvironmentObject.Add(@object);
+            ActivateHighlightOnUnitsListed();
+        }
+
+        selectedUnit = @object;
+    }
+
+    void ActivateHighlightOnUnitsListed()
+    {
+
+        foreach (GameObject selectedUnit in SelectedUnits)
+        {
+            highlight = selectedUnit.transform.Find("Highlight").gameObject;
             highlight.SetActive(true);
         }
-        foreach(GameObject unitSelected in EnvironmentObjectSelected){
-            
-            eHighlight = unitSelected.transform.Find("eHighlight").gameObject;
+        foreach (GameObject selectedUnit in SelectedEnvironmentObject)
+        {
+            eHighlight = selectedUnit.transform.Find("eHighlight").gameObject;
             eHighlight.SetActive(true);
         }
+        foreach (GameObject selectedUnit in SelectedStructures)
+        {
+            sHighlight = selectedUnit.transform.Find("sHighlight").gameObject;
+            sHighlight.SetActive(true);
+        }
     }
 
-    void ClearAllSelections(){
-
-        foreach(GameObject unitSelected in EnvironmentObjectSelected){
-            
-            eHighlight = unitSelected.transform.Find("eHighlight").gameObject;
-            eHighlight.SetActive(false);
-        }
-        foreach(GameObject unitSelected in SelectedUnits){
-
-            highlight = unitSelected.transform.Find("Highlight").gameObject;
-            highlight.SetActive(false);
+    void ClearAllSelections()
+    {
+        if(SelectedUnits != null || SelectedStructures != null || SelectedEnvironmentObject != null){
+            foreach (GameObject selectedUnit in SelectedUnits)
+            {
+                highlight = selectedUnit.transform.Find("Highlight").gameObject;
+                highlight.SetActive(false);
+            }
+            foreach (GameObject selectedUnit in SelectedEnvironmentObject)
+            {
+                eHighlight = selectedUnit.transform.Find("eHighlight").gameObject;
+                eHighlight.SetActive(false);
+            }
+            foreach (GameObject selectedUnit in SelectedStructures)
+            {
+                sHighlight = selectedUnit.transform.Find("sHighlight").gameObject;
+                sHighlight.SetActive(false);
+            }
         }
         SelectedUnits.Clear();
-        EnvironmentObjectSelected.Clear();
+        SelectedEnvironmentObject.Clear();
+        SelectedStructures.Clear();
     }
-
-} 
+}
 
