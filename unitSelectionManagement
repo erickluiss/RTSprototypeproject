@@ -5,12 +5,16 @@ using UnityEngine;
 public class UnitSelectionManagement : MonoBehaviour
 {
     List<GameObject> SelectedUnits;
+    List<GameObject> EnvironmentObjectSelected;
     GameObject unitSelected;
     GameObject highlight;
+    GameObject environmentObjectSelected;
+    GameObject eHighlight;
     
     void Start()
     {
         SelectedUnits = new List<GameObject>();
+        EnvironmentObjectSelected = new List<GameObject>();
     }
 
     void Update()
@@ -19,6 +23,7 @@ public class UnitSelectionManagement : MonoBehaviour
             
             UnitSelecionSystem(unitSelected);
         }
+        
     }
 
 
@@ -26,20 +31,34 @@ public class UnitSelectionManagement : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Physics.Raycast(ray, out RaycastHit hit);
-        
-        if(highlight != null)
-        {   
-            if(!Input.GetKey(KeyCode.LeftShift))
-            {   
-                ClearSelection();
+
+        var shiftIsPressed = Input.GetKey(KeyCode.LeftShift);
+        var objectClicked = hit.collider.gameObject;
+        var playerUnitIsSelected = hit.transform.tag=="Selectable";
+        var environmentObjectIsSelected = hit.transform.tag=="ESelectable";
+         
+        if(highlight || eHighlight != null){
+            if(!shiftIsPressed){
+                ClearAllSelections();
             }
         }
         
-        if(hit.transform.tag=="Selectable"){
-            unit = hit.collider.gameObject;
+        if(playerUnitIsSelected){
+            if(!shiftIsPressed || EnvironmentObjectSelected.Count >= 1) 
+            {   
+                ClearAllSelections();
+            }
+            unit = objectClicked;
             SelectedUnits.Add(unit);             
             ActivateHighlightOnUnitsListed();
-        } 
+        }
+        
+        if(environmentObjectIsSelected) {
+            ClearAllSelections();
+            unit = objectClicked;
+            EnvironmentObjectSelected.Add(unit);
+            ActivateHighlightOnUnitsListed();
+        }
         unitSelected = unit;
     }
     
@@ -50,16 +69,28 @@ public class UnitSelectionManagement : MonoBehaviour
             highlight = unitSelected.transform.Find("Highlight").gameObject;
             highlight.SetActive(true);
         }
+        foreach(GameObject unitSelected in EnvironmentObjectSelected){
+            
+            eHighlight = unitSelected.transform.Find("eHighlight").gameObject;
+            eHighlight.SetActive(true);
+        }
     }
 
-    void ClearSelection(){
-        
-        foreach(GameObject unitSelected in SelectedUnits){
+    void ClearAllSelections(){
+
+        foreach(GameObject unitSelected in EnvironmentObjectSelected){
             
+            eHighlight = unitSelected.transform.Find("eHighlight").gameObject;
+            eHighlight.SetActive(false);
+        }
+        foreach(GameObject unitSelected in SelectedUnits){
+
             highlight = unitSelected.transform.Find("Highlight").gameObject;
             highlight.SetActive(false);
         }
         SelectedUnits.Clear();
+        EnvironmentObjectSelected.Clear();
     }
 
-}   
+} 
+
